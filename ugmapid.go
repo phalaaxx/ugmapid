@@ -28,7 +28,7 @@ func walkFn(base, offset int) filepath.WalkFunc {
 				return err
 			}
 			/* show some progress */
-			fmt.Println(path, stat.Uid, tgt_uid, stat.Gid, tgt_gid)
+			fmt.Printf("%s : uid %d -> %d, gid %d -> %d\n", path, stat.Uid, tgt_uid, stat.Gid, tgt_gid)
 		}
 		return nil
 	}
