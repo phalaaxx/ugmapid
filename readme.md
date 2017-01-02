@@ -10,7 +10,7 @@ installation
 
 Compilation from sources requires golang 1.5+ compiler:
 
-	go get https://github.com/phalaaxx/ugmapid
+	go get github.com/phalaaxx/ugmapid
 
 
 usage
