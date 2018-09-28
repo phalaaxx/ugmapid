@@ -29,7 +29,8 @@ func walkFn(base, offset int, verbose bool) filepath.WalkFunc {
 			}
 			/* show some progress */
 			if verbose {
-				fmt.Printf("%s : uid %d -> %d, gid %d -> %d\n", path, stat.Uid, tgt_uid, stat.Gid, tgt_gid)
+				fmt.Printf("%s : uid %d -> %d, gid %d -> %d\n",
+					path, stat.Uid, tgt_uid, stat.Gid, tgt_gid)
 			}
 		}
 		return nil
