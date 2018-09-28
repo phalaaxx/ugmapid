@@ -9,7 +9,7 @@ import (
 )
 
 /* change uid and gid for a single path element */
-func walkFn(base, offset int) filepath.WalkFunc {
+func walkFn(base, offset int, verbose bool) filepath.WalkFunc {
 	return func(path string, info os.FileInfo, err error) error {
 		stat := info.Sys().(*syscall.Stat_t)
 		/* get target uid and gid values */
@@ -28,7 +28,9 @@ func walkFn(base, offset int) filepath.WalkFunc {
 				return err
 			}
 			/* show some progress */
-			fmt.Printf("%s : uid %d -> %d, gid %d -> %d\n", path, stat.Uid, tgt_uid, stat.Gid, tgt_gid)
+			if verbose {
+				fmt.Printf("%s : uid %d -> %d, gid %d -> %d\n", path, stat.Uid, tgt_uid, stat.Gid, tgt_gid)
+			}
 		}
 		return nil
 	}
@@ -39,6 +41,7 @@ func main() {
 	/* initialize arguments */
 	var directory string
 	var offset int
+	var verbose bool
 	flag.StringVar(
 		&directory,
 		"directory",
@@ -49,6 +52,11 @@ func main() {
 		"offset",
 		100000,
 		"uid/gid map offset")
+	flag.BoolVar(
+		&verbose,
+		"verbose",
+		false,
+		"Display verbose output")
 	flag.Parse()
 	/* check proper directory value */
 	if len(directory) == 0 {
@@ -73,7 +81,7 @@ func main() {
 	base := int(st.Sys().(*syscall.Stat_t).Uid)
 	fmt.Println("calculated base", base)
 	/* walk files and update uid and gid */
-	if err = filepath.Walk(directory, walkFn(base, offset)); err != nil {
+	if err = filepath.Walk(directory, walkFn(base, offset, verbose)); err != nil {
 		fmt.Println("Error: ", err)
 	}
 }
