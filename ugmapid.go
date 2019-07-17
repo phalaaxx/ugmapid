@@ -13,24 +13,24 @@ func walkFn(base, offset int, verbose bool) filepath.WalkFunc {
 	return func(path string, info os.FileInfo, err error) error {
 		stat := info.Sys().(*syscall.Stat_t)
 		/* get target uid and gid values */
-		tgt_uid, tgt_gid := int(stat.Uid), int(stat.Gid)
+		tgtUid, tgtGid := int(stat.Uid), int(stat.Gid)
 		/* check ranges */
-		if tgt_uid < offset || tgt_uid > offset+65536 {
-			tgt_uid = offset + (tgt_uid - base)
+		if tgtUid < offset || tgtUid > offset+65536 {
+			tgtUid = offset + (tgtUid - base)
 		}
-		if tgt_gid < offset || tgt_gid > offset+65536 {
-			tgt_gid = offset + (tgt_gid - base)
+		if tgtGid < offset || tgtGid > offset+65536 {
+			tgtGid = offset + (tgtGid - base)
 		}
 		/* change file/directory owner */
-		if tgt_uid != int(stat.Uid) || tgt_gid != int(stat.Gid) {
-			if err = os.Lchown(path, tgt_uid, tgt_gid); err != nil {
+		if tgtUid != int(stat.Uid) || tgtGid != int(stat.Gid) {
+			if err = os.Lchown(path, tgtUid, tgtGid); err != nil {
 				log.Println("  ERROR: ", path)
 				return err
 			}
 			/* show some progress */
 			if verbose {
 				log.Printf("%s : uid %d -> %d, gid %d -> %d\n",
-					path, stat.Uid, tgt_uid, stat.Gid, tgt_gid)
+					path, stat.Uid, tgtUid, stat.Gid, tgtGid)
 			}
 		}
 		return nil
