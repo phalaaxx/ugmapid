@@ -2,7 +2,7 @@ package main
 
 import (
 	"flag"
-	"fmt"
+	"log"
 	"os"
 	"path/filepath"
 	"syscall"
@@ -24,12 +24,12 @@ func walkFn(base, offset int, verbose bool) filepath.WalkFunc {
 		/* change file/directory owner */
 		if tgt_uid != int(stat.Uid) || tgt_gid != int(stat.Gid) {
 			if err = os.Lchown(path, tgt_uid, tgt_gid); err != nil {
-				fmt.Println("  ERROR: ", path)
+				log.Println("  ERROR: ", path)
 				return err
 			}
 			/* show some progress */
 			if verbose {
-				fmt.Printf("%s : uid %d -> %d, gid %d -> %d\n",
+				log.Printf("%s : uid %d -> %d, gid %d -> %d\n",
 					path, stat.Uid, tgt_uid, stat.Gid, tgt_gid)
 			}
 		}
@@ -40,9 +40,11 @@ func walkFn(base, offset int, verbose bool) filepath.WalkFunc {
 /* main program */
 func main() {
 	/* initialize arguments */
-	var directory string
-	var offset int
-	var verbose bool
+	var (
+		directory string
+		offset    int
+		verbose   bool
+	)
 	flag.StringVar(
 		&directory,
 		"directory",
@@ -61,28 +63,24 @@ func main() {
 	flag.Parse()
 	/* check proper directory value */
 	if len(directory) == 0 {
-		fmt.Println("error: directory argument is required")
-		return
+		log.Fatal("error: directory argument is required")
 	}
 	st, err := os.Stat(directory)
 	if err != nil {
-		fmt.Println("error:", err)
-		return
+		log.Fatal("error:", err)
 	}
 	if !st.Mode().IsDir() {
-		fmt.Println("error: not a directory:", directory)
-		return
+		log.Fatal("error: not a directory:", directory)
 	}
 	/* check for sane offset value */
 	if offset < 0 {
-		fmt.Println("error: offset must be a positive integer value")
-		return
+		log.Fatal("error: offset must be a positive integer value")
 	}
 	/* calculate base id */
 	base := int(st.Sys().(*syscall.Stat_t).Uid)
-	fmt.Println("calculated base", base)
+	log.Println("calculated base", base)
 	/* walk files and update uid and gid */
 	if err = filepath.Walk(directory, walkFn(base, offset, verbose)); err != nil {
-		fmt.Println("Error: ", err)
+		log.Fatal("Error: ", err)
 	}
 }
